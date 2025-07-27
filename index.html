@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lunar Search</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: #0a0a23;
+            color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: auto;
+            position: relative;
+        }
+        /* Starry background with twinkling animation */
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .stars::before {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            box-shadow: 
+                100px 50px #fff, 200px 300px #fff, 300px 100px #fff, 
+                400px 500px #fff, 500px 200px #fff, 600px 400px #fff, 
+                700px 150px #fff, 800px 350px #fff, 900px 250px #fff,
+                150px 450px #fff, 250px 600px #fff, 350px 50px #fff;
+            animation: twinkle 4s infinite ease-in-out;
+        }
+        .stars::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            box-shadow: 
+                50px 200px #fff, 250px 350px #fff, 450px 150px #fff, 
+                550px 450px #fff, 650px 250px #fff, 750px 550px #fff,
+                850px 50px #fff, 950px 300px #fff, 1050px 500px #fff;
+            animation: twinkle 5s infinite ease-in-out 1s;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 50, 0.7);
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            max-width: 700px;
+            width: 90%;
+            margin: 20px;
+            z-index: 1;
+            animation: slideIn 1s ease-out forwards;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #d8e2dc;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: fadeIn 1.5s ease-in;
+        }
+        .search-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        input[type="search"] {
+            padding: 12px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 25px 0 0 25px;
+            width: 70%;
+            max-width: 400px;
+            background: #f0f0f0;
+            color: #333;
+            outline: none;
+            transition: box-shadow 0.3s ease;
+        }
+        input[type="search"]:focus {
+            box-shadow: 0 0 10px rgba(255, 202, 212, 0.7);
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 0 25px 25px 0;
+            background: #ffcad4;
+            color: #0a0a23;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.3s;
+        }
+        button:hover {
+            background: #f8b4b4;
+            transform: scale(1.05);
+        }
+        .error-message {
+            color: #ffcad4;
+            font-style: italic;
+            text-align: center;
+            margin-top: 20px;
+            animation: fadeIn 0.5s ease-in;
+        }
+        .moon {
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%) scale(1);
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, #f0f0f0 50%, transparent 55%);
+            border-radius: 50%;
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.5);
+            animation: pulse 6s ease-in-out infinite;
+            z-index: 0;
+        }
+        @keyframes pulse {
+            0%, 100% {
+                transform: translateX(-50%) scale(1);
+                box-shadow: 0 0 50px rgba(255, 255, 255, 0.5);
+            }
+            50% {
+                transform: translateX(-50%) scale(1.1);
+                box-shadow: 0 0 80px rgba(255, 255, 255, 0.8);
+            }
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars"></div>
+    <div class="moon"></div>
+    <div class="container">
+        <h1>Lunar Search</h1>
+        <form role="search" id="searchForm" class="search-bar">
+            <input type="search" id="query" name="q" placeholder="Search the cosmos..." aria-label="Search the web">
+            <button type="submit">Search</button>
+        </form>
+        <div class="error-message" id="results"></div>
+    </div>
+    <script>
+        const form = document.getElementById('searchForm');
+        const queryInput = document.getElementById('query');
+        const resultsDiv = document.getElementById('results');
+
+        function search(event) {
+            event.preventDefault();
+            const query = queryInput.value.trim();
+            if (!query) {
+                resultsDiv.innerHTML = '<p>Please enter a search query.</p>';
+                return;
+            }
+            resultsDiv.innerHTML = ''; // Clear any error message
+            const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+            window.location.href = googleSearchUrl; // Redirect in the same tab
+        }
+
+        form.addEventListener('submit', search);
+        queryInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                search(e);
+            }
+        });
+    </script>
+</body>
+</html>
