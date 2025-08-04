@@ -156,9 +156,25 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
+        /* Add clock styling */
+        .clock {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 50, 0.7);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            color: #b3e5fc;
+            text-shadow: 0 0 5px #b3e5fc;
+            box-shadow: 0 0 10px rgba(179, 229, 252, 0.5);
+        }
     </style>
 </head>
 <body>
+    <!-- Add clock div -->
+    <div class="clock" id="clock"></div>
     <div class="stars"></div>
     <div class="moon"></div>
     <div class="container">
@@ -192,6 +208,16 @@
                 search(e);
             }
         });
+    </script>
+    <!-- Add clock JavaScript -->
+    <script>
+        function updateClock() {
+            const clockElement = document.getElementById('clock');
+            const now = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata", hour: '2-digit', minute: '2-digit', hour12: true });
+            clockElement.textContent = now;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
     </script>
 </body>
 </html>
